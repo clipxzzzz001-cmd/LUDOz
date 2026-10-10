@@ -8,7 +8,15 @@ const PORT = process.env.PORT || 8080;
 const TURN_MS = 25000;       // auto-play if a human is idle this long
 const rooms = new Map();
 
-const server = http.createServer((req, res) => { res.writeHead(200, { 'Content-Type': 'text/plain' }); res.end('Ludo server OK\n'); });
+const fs = require('fs'), path = require('path');
+const server = http.createServer((req, res) => {
+  if (req.url === '/' || req.url.startsWith('/?')) {
+    fs.readFile(path.join(__dirname, 'index.html'), (e, d) => {
+      if (e) { res.writeHead(200, { 'Content-Type': 'text/plain' }); res.end('Ludo server OK\n'); }
+      else { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(d); }
+    });
+  } else { res.writeHead(200, { 'Content-Type': 'text/plain' }); res.end('Ludo server OK\n'); }
+});
 const wss = new WebSocketServer({ server });
 
 const rnd = () => crypto.randomInt(0, 1e9) / 1e9;
